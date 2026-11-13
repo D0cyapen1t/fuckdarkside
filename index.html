@@ -1,0 +1,482 @@
+<!-- language: HTML, file: index.html, target: Web -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio | FUCKDARKSIDEE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&display=swap');
+
+        body { 
+            margin: 0; background: #000; color: #fff; 
+            font-family: 'Space Grotesk', sans-serif; overflow: hidden; 
+            cursor: none; user-select: none;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed; inset: 0; background: #000; z-index: 11000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1); cursor: pointer;
+        }
+        .loader-text {
+            font-size: 2rem; font-weight: 900; letter-spacing: 0.2em;
+            animation: pulse 1s infinite alternate;
+        }
+        .loader-sub {
+            font-size: 0.75rem; letter-spacing: 0.3em; color: rgba(255,255,255,0.4);
+            margin-top: 1rem; text-transform: uppercase;
+        }
+        @keyframes pulse {
+            from { opacity: 0.5; filter: blur(2px); text-shadow: 0 0 10px #ff00c1; }
+            to { opacity: 1; filter: blur(0); text-shadow: 0 0 20px #00fff9; }
+        }
+
+        /* Film Grain */
+        .noise {
+            position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Canvas BG */
+        #canvas { position: fixed; inset: 0; z-index: 0; }
+
+        /* Clean Spring Cursor */
+        .cursor-dot {
+            width: 5px; height: 5px; background: #fff; border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 10000;
+        }
+        .cursor-ring {
+            width: 30px; height: 30px; border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999;
+            will-change: transform; transition: width 0.2s, height 0.2s, border-color 0.2s;
+        }
+
+        /* Digital Click Animations */
+        .click-cross {
+            position: fixed; color: #00fff9; font-family: monospace; font-size: 24px; line-height: 1;
+            pointer-events: none; z-index: 10001; margin-top: -2px;
+            transform: translate(-50%, -50%);
+            animation: crossAnim 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes crossAnim {
+            0% { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 1; text-shadow: 0 0 10px #00fff9; }
+            100% { transform: translate(-50%, -50%) scale(2) rotate(90deg); opacity: 0; color: #ff00c1; text-shadow: 0 0 20px #ff00c1; }
+        }
+        
+        .click-pixel {
+            position: fixed; width: 3px; height: 3px; background: #ff00c1;
+            pointer-events: none; z-index: 10001;
+            transform: translate(-50%, -50%);
+            animation: pixelAnim 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes pixelAnim {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; box-shadow: 0 0 5px #ff00c1; }
+            100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0); opacity: 0; }
+        }
+
+        /* Glitch Effect */
+        .glitch { position: relative; display: inline-block; cursor: none; }
+        .glitch::before, .glitch::after {
+            content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; pointer-events: none;
+        }
+        .glitch:hover::before {
+            left: 2px; text-shadow: -2px 0 #ff00c1; clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse; opacity: 1;
+        }
+        .glitch:hover::after {
+            left: -2px; text-shadow: -2px 0 #00fff9; clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse; opacity: 1;
+        }
+        @keyframes glitch-anim { 0% { clip: rect(10px, 9999px, 86px, 0); } 20% { clip: rect(72px, 9999px, 14px, 0); } 40% { clip: rect(31px, 9999px, 94px, 0); } 60% { clip: rect(82px, 9999px, 44px, 0); } 80% { clip: rect(23px, 9999px, 66px, 0); } 100% { clip: rect(61px, 9999px, 21px, 0); } }
+        @keyframes glitch-anim2 { 0% { clip: rect(65px, 9999px, 100px, 0); } 20% { clip: rect(21px, 9999px, 9px, 0); } 40% { clip: rect(43px, 9999px, 78px, 0); } 60% { clip: rect(12px, 9999px, 34px, 0); } 80% { clip: rect(88px, 9999px, 5px, 0); } 100% { clip: rect(34px, 9999px, 87px, 0); } }
+
+        /* Glass Cards */
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05); cursor: none;
+            outline: none !important; -webkit-tap-highlight-color: transparent;
+        }
+        .glass-btn-3d { transform-style: preserve-3d; transition: transform 0.1s; }
+        .glass-btn-content { transform: translateZ(40px); }
+        .glass-btn-glow {
+            position: absolute; inset: 0; background: radial-gradient(circle at var(--x) var(--y), rgba(255,255,255,0.1), transparent 40%);
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        .glass-btn:hover .glass-btn-glow { opacity: 1; }
+
+        /* Убраны синие обводки фокуса во всей системе */
+        button, input, a, *:focus { outline: none !important; box-shadow: none !important; }
+
+        /* Floating Skills Swarm */
+        .skill-tag {
+            position: absolute; padding: 0.5rem 1rem; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            white-space: nowrap; font-size: 0.8rem; font-weight: 500; user-select: none; 
+            transition: filter 0.3s; opacity: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: none;
+        }
+        .skill-tag.visible { opacity: 1; transition: opacity 1s, filter 0.3s; }
+        .skill-tag:hover { filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); border-color: rgba(255,255,255,0.5); }
+
+        /* Sleek Audio Pill */
+        #audio-dock {
+            transform: translateX(-50%) translateY(100px); opacity: 0; cursor: none;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #audio-dock.active { transform: translateX(-50%) translateY(0); opacity: 1; }
+        
+        .audio-bars .bar { transition: all 0.2s; }
+        .audio-bars.playing .bar:nth-child(1) { animation: eq 0.8s ease-in-out infinite alternate; }
+        .audio-bars.playing .bar:nth-child(2) { animation: eq 0.5s ease-in-out infinite alternate-reverse; }
+        .audio-bars.playing .bar:nth-child(3) { animation: eq 1s ease-in-out infinite alternate; }
+        .audio-bars.playing .bar:nth-child(4) { animation: eq 0.6s ease-in-out infinite alternate-reverse; }
+        @keyframes eq { 0% { height: 3px; background: #ff00c1; box-shadow: 0 0 5px #ff00c1; } 100% { height: 16px; background: #00fff9; box-shadow: 0 0 10px #00fff9; } }
+
+        input[type=range] { -webkit-appearance: none; background: transparent; width: 60px; transition: width 0.3s; cursor: none; }
+        #audio-dock:hover input[type=range] { width: 100px; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 10px; width: 10px; border-radius: 50%;
+            background: #fff; margin-top: -3.5px; transition: background 0.3s;
+        }
+        input[type=range]:hover::-webkit-slider-thumb { background: #00fff9; box-shadow: 0 0 8px #00fff9; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 3px; background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+        /* Entrance Animation */
+        .reveal { opacity: 0; transform: scale(0.9) translateY(30px); }
+        .reveal.active { animation: popIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .d-1 { animation-delay: 0.1s; } .d-2 { animation-delay: 0.2s; } .d-3 { animation-delay: 0.3s; }
+        @keyframes popIn { to { opacity: 1; transform: scale(1) translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader (Висит, пока не кликнешь) -->
+    <div id="preloader">
+        <div class="loader-text text-white font-mono">SYSTEM.INIT</div>
+        <div class="loader-sub font-mono">[ CLICK ANYWHERE TO ENTER ]</div>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="bg-music" src="2.mp3" loop></audio>
+
+    <div class="noise"></div>
+    <canvas id="canvas"></canvas>
+
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-ring" id="cursor-ring"></div>
+
+    <!-- Floating Skills Container -->
+    <div id="skills-container" class="fixed inset-0 z-10 pointer-events-none"></div>
+
+    <!-- Sleek Audio Dock -->
+    <div id="audio-dock" class="fixed bottom-8 left-1/2 z-50 flex items-center gap-6 px-6 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 hover:border-white/20 transition-colors">
+        <button id="play-btn" class="text-xs font-bold tracking-widest text-white/50 hover:text-white transition-colors flex items-center gap-2 outline-none cursor-none">
+            <svg id="play-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="pause-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        <div class="audio-bars flex items-end gap-[3px] h-4 pointer-events-none">
+            <div class="bar w-1.5 h-[3px] bg-white/40 rounded-t-sm"></div>
+            <div class="bar w-1.5 h-[3px] bg-white/40 rounded-t-sm"></div>
+            <div class="bar w-1.5 h-[3px] bg-white/40 rounded-t-sm"></div>
+            <div class="bar w-1.5 h-[3px] bg-white/40 rounded-t-sm"></div>
+        </div>
+        <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.5" class="outline-none cursor-none">
+    </div>
+
+    <!-- Main Content -->
+    <div class="relative z-20 h-screen w-full flex flex-col items-center justify-center pointer-events-none">
+        <div class="max-w-md w-full px-6 flex flex-col items-center pointer-events-auto">
+            
+            <!-- Avatar -->
+            <div class="reveal relative mb-10 group cursor-none">
+                <div class="absolute -inset-4 border border-white/10 rounded-full animate-[spin_10s_linear_infinite] group-hover:border-[#ff00c1]/50 transition-colors pointer-events-none"></div>
+                <div class="absolute -inset-2 border border-white/20 rounded-full animate-[spin_7s_linear_infinite_reverse] group-hover:border-[#00fff9]/50 transition-colors pointer-events-none"></div>
+                <img src="ava.png" alt="Avatar" class="relative w-36 h-36 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 bg-zinc-900 pointer-events-none">
+            </div>
+
+            <!-- Glitch Title -->
+            <h1 class="reveal d-1 glitch text-5xl md:text-6xl font-black tracking-tighter mb-4 uppercase" data-text="FUCKDARKSIDEE">FUCKDARKSIDEE</h1>
+            
+            <p class="reveal d-2 text-white/50 text-sm tracking-widest uppercase mb-12 font-medium">Digital & Motion Alchemist</p>
+
+            <!-- Links -->
+            <div class="reveal d-3 w-full flex flex-col gap-4 perspective-[1000px]">
+                <a href="#" class="glass-btn glass-btn-3d block w-full relative rounded-2xl overflow-hidden group">
+                    <div class="glass-btn-glow"></div>
+                    <div class="glass-btn-content px-8 py-5 flex items-center justify-between pointer-events-none">
+                        <span class="font-bold tracking-wide">Telegram</span>
+                        <span class="text-xs border border-white/20 px-2 py-1 rounded-full group-hover:bg-white group-hover:text-black transition-colors">DM</span>
+                    </div>
+                </a>
+
+                <a href="#" class="glass-btn glass-btn-3d block w-full relative rounded-2xl overflow-hidden group">
+                    <div class="glass-btn-glow"></div>
+                    <div class="glass-btn-content px-8 py-5 flex items-center justify-between pointer-events-none">
+                        <span class="font-bold tracking-wide">GitHub</span>
+                        <span class="text-xs border border-white/20 px-2 py-1 rounded-full group-hover:bg-white group-hover:text-black transition-colors">CODE</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isStarted = false;
+
+        // --- Preloader Click-to-Start Trigger ---
+        document.getElementById('preloader').addEventListener('click', () => {
+            if (isStarted) return;
+            isStarted = true;
+
+            // Убираем шторку прелоадера
+            document.getElementById('preloader').style.transform = 'translateY(-100%)';
+
+            // Запускаем музыку
+            const music = document.getElementById('bg-music');
+            music.volume = document.getElementById('vol-slider').value;
+            music.play().then(() => {
+                document.querySelector('.audio-bars').classList.add('playing');
+                document.getElementById('play-icon').classList.add('hidden');
+                document.getElementById('pause-icon').classList.remove('hidden');
+                document.getElementById('play-btn').classList.replace('text-white/50', 'text-[#00fff9]');
+                window.isPlaying = true;
+            }).catch(() => {});
+
+            // Активируем появление контента
+            setTimeout(() => {
+                document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
+                document.querySelectorAll('.skill-tag').forEach(el => el.classList.add('visible'));
+                document.getElementById('audio-dock').classList.add('active');
+            }, 400);
+        });
+
+        // --- Digital Click Burst ---
+        window.addEventListener('click', (e) => {
+            const cross = document.createElement('div');
+            cross.className = 'click-cross'; cross.innerText = '+';
+            cross.style.left = e.clientX + 'px'; cross.style.top = e.clientY + 'px';
+            document.body.appendChild(cross);
+            setTimeout(() => cross.remove(), 500);
+
+            for(let i=0; i<8; i++) {
+                const p = document.createElement('div');
+                p.className = 'click-pixel';
+                p.style.left = e.clientX + 'px'; p.style.top = e.clientY + 'px';
+                const angle = (Math.PI * 2 / 8) * i; const dist = 40 + Math.random() * 40;
+                p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+                p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 600);
+            }
+        });
+
+        // --- Audio Logic ---
+        const music = document.getElementById('bg-music');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const audioBars = document.querySelector('.audio-bars');
+        const volSlider = document.getElementById('vol-slider');
+        
+        volSlider.addEventListener('input', (e) => { music.volume = e.target.value; });
+
+        let isPlaying = false;
+        playBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            if (window.isPlaying || isPlaying) {
+                music.pause();
+                audioBars.classList.remove('playing');
+                playIcon.classList.remove('hidden'); pauseIcon.classList.add('hidden');
+                playBtn.classList.replace('text-[#00fff9]', 'text-white/50');
+                isPlaying = false;
+                window.isPlaying = false;
+            } else {
+                music.play();
+                audioBars.classList.add('playing');
+                playIcon.classList.add('hidden'); pauseIcon.classList.remove('hidden');
+                playBtn.classList.replace('text-white/50', 'text-[#00fff9]');
+                isPlaying = true;
+                window.isPlaying = true;
+            }
+        });
+
+        // --- Clean Spring Cursor ---
+        const dot = document.getElementById('cursor-dot');
+        const ring = document.getElementById('cursor-ring');
+        let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+        let ringX = mouseX, ringY = mouseY;
+        let isHovering = false;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            dot.style.transform = `translate(${mouseX - 2.5}px, ${mouseY - 2.5}px)`;
+        });
+
+        function animateCursor() {
+            ringX += (mouseX - ringX) * 0.15;
+            ringY += (mouseY - ringY) * 0.15;
+            let offset = isHovering ? 30 : 15;
+            ring.style.transform = `translate(${ringX - offset}px, ${ringY - offset}px)`;
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        document.querySelectorAll('a, button, input[type="range"], .glitch, img, #preloader').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                isHovering = true;
+                ring.style.width = '60px'; ring.style.height = '60px'; 
+                ring.style.borderColor = '#00fff9';
+            });
+            el.addEventListener('mouseleave', () => {
+                isHovering = false;
+                ring.style.width = '30px'; ring.style.height = '30px';
+                ring.style.borderColor = 'rgba(255,255,255,0.5)';
+            });
+        });
+
+        // --- Canvas: Dense Particles & Code Rain ---
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let codeStrings = [];
+        const snippets = ['0x00F8', 'ptr->next', 'sys.override()', 'chmod 777', 'alloc(size)', '[kernel_hook]', 'jmp eax', 'FUCKDARKSIDEE', '01001011', 'root@localhost', 'inject.dll'];
+
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.size = Math.random() * 1.5;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                const dx = mouseX - this.x; const dy = mouseY - this.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 180) { this.x -= dx * 0.015; this.y -= dy * 0.015; }
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        class CodeString {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vy = -0.2 - Math.random() * 0.8;
+                this.text = snippets[Math.floor(Math.random() * snippets.length)];
+                this.opacity = Math.random() * 0.15 + 0.05;
+                this.size = Math.floor(Math.random() * 8 + 10);
+            }
+            update() {
+                this.y += this.vy;
+                if (this.y < -50) {
+                    this.y = canvas.height + 50; this.x = Math.random() * canvas.width;
+                    this.text = snippets[Math.floor(Math.random() * snippets.length)];
+                }
+            }
+            draw() {
+                ctx.font = `${this.size}px monospace`;
+                ctx.fillStyle = `rgba(0, 255, 249, ${this.opacity})`;
+                ctx.fillText(this.text, this.x, this.y);
+            }
+        }
+
+        for (let i = 0; i < 150; i++) particles.push(new Particle());
+        for (let i = 0; i < 25; i++) codeStrings.push(new CodeString());
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            codeStrings.forEach(c => { c.update(); c.draw(); });
+            particles.forEach(p => { p.update(); p.draw(); });
+            
+            for(let i=0; i<particles.length; i++) {
+                for(let j=i; j<particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 100) { 
+                        ctx.strokeStyle = `rgba(255,255,255,${0.2 - dist/500})`;
+                        ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        // --- Glass Light Tracker & 3D Tilt ---
+        document.querySelectorAll('.glass-btn-3d').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+                btn.style.setProperty('--x', `${x}px`); btn.style.setProperty('--y', `${y}px`);
+                const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -15;
+                const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 15;
+                btn.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+            });
+        });
+
+        // --- Dense Floating Skills Swarm ---
+        const skillsList = [
+            'Three.js', 'WebGL', 'React', 'Motion', 'GLSL', 'Tailwind', 'Physics', 
+            'Next.js', 'Node.js', 'Framer', 'GSAP', 'C4D', 'After Effects', 'Vue', 
+            'Figma', 'Python', 'C++', 'WebGPU', 'Blender', 'Spline', 'Canvas API'
+        ];
+        const container = document.getElementById('skills-container');
+        const skillNodes = [];
+
+        skillsList.forEach((skill) => {
+            const el = document.createElement('div');
+            el.className = 'skill-tag pointer-events-auto cursor-none';
+            el.innerText = skill;
+            const x = Math.random() * (window.innerWidth - 150) + 50;
+            const y = Math.random() * (window.innerHeight - 100) + 50;
+            el.style.left = `${x}px`; el.style.top = `${y}px`;
+            container.appendChild(el);
+            skillNodes.push({ 
+                el, x, y, 
+                vx: (Math.random() - 0.5) * 1.5, 
+                vy: (Math.random() - 0.5) * 1.5 
+            });
+        });
+
+        function animateSkills() {
+            skillNodes.forEach(node => {
+                node.x += node.vx; node.y += node.vy;
+                
+                if (node.x <= 20 || node.x >= window.innerWidth - 120) node.vx *= -1;
+                if (node.y <= 20 || node.y >= window.innerHeight - 60) node.vy *= -1;
+                
+                const dx = mouseX - (node.x + 50); 
+                const dy = mouseY - (node.y + 15);
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 250) { 
+                    node.x -= (dx / dist) * 3; 
+                    node.y -= (dy / dist) * 3; 
+                }
+                
+                node.el.style.transform = `translate(${node.x - parseFloat(node.el.style.left)}px, ${node.y - parseFloat(node.el.style.top)}px)`;
+            });
+            requestAnimationFrame(animateSkills);
+        }
+        animateSkills();
+
+    </script>
+</body>
+</html>
