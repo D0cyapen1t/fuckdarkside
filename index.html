@@ -14,12 +14,10 @@
             font-family: 'Space Grotesk', sans-serif; overflow: hidden; 
             user-select: none;
         }
-        /* Включаем кастомный курсор только для десктопа с мышкой */
         @media (pointer: fine) {
             body { cursor: none; }
         }
 
-        /* Preloader */
         #preloader {
             position: fixed; inset: 0; background: #000; z-index: 11000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -38,16 +36,13 @@
             to { opacity: 1; filter: blur(0); text-shadow: 0 0 20px #00fff9; }
         }
 
-        /* Film Grain */
         .noise {
             position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.04;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* Canvas BG */
         #canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
-        /* Clean Spring Cursor & Trail (Desktop Only) */
         .cursor-dot {
             width: 5px; height: 5px; background: #fff; border-radius: 50%;
             position: fixed; pointer-events: none; z-index: 10000; display: none;
@@ -95,7 +90,6 @@
             100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0); opacity: 0; }
         }
 
-        /* Glitch Effect */
         .glitch { position: relative; display: inline-block; }
         @media (pointer: fine) {
             .glitch { cursor: none; }
@@ -115,7 +109,6 @@
         @keyframes glitch-anim { 0% { clip: rect(10px, 9999px, 86px, 0); } 20% { clip: rect(72px, 9999px, 14px, 0); } 40% { clip: rect(31px, 9999px, 94px, 0); } 60% { clip: rect(82px, 9999px, 44px, 0); } 80% { clip: rect(23px, 9999px, 66px, 0); } 100% { clip: rect(61px, 9999px, 21px, 0); } }
         @keyframes glitch-anim2 { 0% { clip: rect(65px, 9999px, 100px, 0); } 20% { clip: rect(21px, 9999px, 9px, 0); } 40% { clip: rect(43px, 9999px, 78px, 0); } 60% { clip: rect(12px, 9999px, 34px, 0); } 80% { clip: rect(88px, 9999px, 5px, 0); } 100% { clip: rect(34px, 9999px, 87px, 0); } }
 
-        /* Glass Cards */
         .glass-btn {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -132,7 +125,6 @@
 
         button, input, a, *:focus { outline: none !important; box-shadow: none !important; }
 
-        /* Floating Skills Swarm */
         .skill-tag {
             position: absolute; padding: 0.4rem 0.8rem; border: 1px solid rgba(255,255,255,0.1);
             border-radius: 30px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
@@ -143,7 +135,6 @@
         .skill-tag.visible { opacity: 1; transition: opacity 1s, filter 0.3s; }
         .skill-tag:hover { filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); border-color: rgba(255,255,255,0.5); }
 
-        /* Sleek Audio Dock */
         #audio-dock {
             transform: translateX(-50%) translateY(100px); opacity: 0;
             transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -169,7 +160,6 @@
         input[type=range]:hover::-webkit-slider-thumb { background: #00fff9; box-shadow: 0 0 8px #00fff9; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 3px; background: rgba(255,255,255,0.2); border-radius: 2px; }
 
-        /* Clock Widget (Top Left) */
         #clock-widget {
             position: fixed; top: 16px; left: 16px; z-index: 100;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
@@ -184,7 +174,6 @@
         }
         #clock-widget.active { opacity: 1; transform: translateY(0); }
 
-        /* Terminal Modal */
         #terminal-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
             z-index: 12000; display: flex; align-items: center; justify-content: center;
@@ -214,7 +203,6 @@
             cursor: text !important;
         }
 
-        /* Entrance Animation */
         .reveal { opacity: 0; transform: scale(0.9) translateY(30px); }
         .reveal.active { animation: popIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .d-1 { animation-delay: 0.1s; } .d-2 { animation-delay: 0.2s; } .d-3 { animation-delay: 0.3s; }
@@ -223,13 +211,11 @@
 </head>
 <body>
 
-    <!-- Preloader -->
     <div id="preloader">
         <div class="loader-text text-white font-mono">SYSTEM.INIT</div>
         <div class="loader-sub font-mono">[ CLICK ANYWHERE TO ENTER ]</div>
     </div>
 
-    <!-- Clock Widget -->
     <div id="clock-widget">
         <div class="flex items-center gap-2 text-cyan-400 font-bold tracking-wider">
             <span>MSK:</span> <span id="clock-msk">00:00:00</span>
@@ -239,7 +225,6 @@
         </div>
     </div>
 
-    <!-- Terminal Modal -->
     <div id="terminal-modal">
         <div class="terminal-box">
             <div class="terminal-header">
@@ -256,7 +241,6 @@
         </div>
     </div>
 
-    <!-- Audio Element -->
     <audio id="bg-music"></audio>
 
     <div class="noise"></div>
@@ -265,10 +249,8 @@
     <div class="cursor-dot" id="cursor-dot"></div>
     <div class="cursor-ring" id="cursor-ring"></div>
 
-    <!-- Floating Skills Container -->
     <div id="skills-container" class="fixed inset-0 z-10 pointer-events-none overflow-hidden"></div>
 
-    <!-- Sleek Audio Dock -->
     <div id="audio-dock" class="fixed bottom-6 left-1/2 z-50 flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 hover:border-white/20 transition-colors">
         <button id="play-btn" class="text-xs font-bold tracking-widest text-white/50 hover:text-white transition-colors flex items-center gap-2 outline-none">
             <svg id="play-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -289,23 +271,19 @@
         <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.5" class="outline-none">
     </div>
 
-    <!-- Main Content -->
     <div class="relative z-20 h-screen w-full flex flex-col items-center justify-center pointer-events-none px-4">
         <div class="max-w-md w-full flex flex-col items-center pointer-events-auto">
             
-            <!-- Avatar -->
             <div class="reveal relative mb-6 sm:mb-8 group">
                 <div class="absolute -inset-4 border border-white/10 rounded-full animate-[spin_10s_linear_infinite] group-hover:border-[#ff00c1]/50 transition-colors pointer-events-none"></div>
                 <div class="absolute -inset-2 border border-white/20 rounded-full animate-[spin_7s_linear_infinite_reverse] group-hover:border-[#00fff9]/50 transition-colors pointer-events-none"></div>
                 <img src="ava.png" alt="Avatar" class="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 bg-zinc-900 pointer-events-none">
             </div>
 
-            <!-- Glitch Title -->
             <h1 id="terminal-trigger" class="reveal d-1 glitch text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter mb-2 uppercase text-center" data-text="FUCKDARKSIDEE" title="Click to open Terminal (~)">FUCKDARKSIDEE</h1>
             
             <p class="reveal d-2 text-white/50 text-[11px] sm:text-xs tracking-widest uppercase mb-6 sm:mb-8 font-medium text-center">digital & web dev</p>
 
-            <!-- Telegram Link Card -->
             <div class="reveal d-3 w-full flex flex-col gap-4 perspective-[1000px]">
                 <a href="https://t.me/fuckdarksidee" target="_blank" rel="noopener" class="glass-btn glass-btn-3d block w-full relative rounded-2xl overflow-hidden group">
                     <div class="glass-btn-glow"></div>
@@ -331,7 +309,6 @@
         let isStarted = false;
         const isMobile = window.matchMedia("(pointer: coarse)").matches;
 
-        // --- Playlist Configuration ---
         const playlist = ['1.mp3', '2.mp3', '3.mp3', '4.mp3'];
         let currentTrackIdx = 0;
         const music = document.getElementById('bg-music');
@@ -344,7 +321,6 @@
         }
         loadTrack(currentTrackIdx);
 
-        // --- Preloader Click-to-Start ---
         document.getElementById('preloader').addEventListener('click', () => {
             if (isStarted) return;
             isStarted = true;
@@ -382,7 +358,6 @@
             if (window.isPlaying || isPlaying) music.play();
         });
 
-        // --- Clocks (MSK & Kiev) ---
         function updateClocks() {
             const now = new Date();
             const timeMsk = now.toLocaleTimeString('ru-RU', { timeZone: 'Europe/Moscow', hour12: false });
@@ -394,7 +369,6 @@
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // --- Terminal Modal Logic ---
         const terminalModal = document.getElementById('terminal-modal');
         const terminalTrigger = document.getElementById('terminal-trigger');
         const termClose = document.getElementById('term-close');
@@ -453,9 +427,6 @@
                     case 'matrix':
                         resLine.innerText = 'Matrix frequency modulated successfully.';
                         break;
-                    case 'whoami':
-                        resLine.innerText = 'FUCKDARKSIDEE [Digital & Web Dev / Motion Alchemist]';
-                        break;
                     case 'ping':
                         resLine.innerText = 'PING 127.0.0.1 (127.0.0.1): 56 data bytes. 56 bytes from 127.0.0.1: icmp_seq=1 time=0.231 ms';
                         break;
@@ -480,7 +451,6 @@
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
-        // --- Digital Click & Trail Animations (Desktop Only) ---
         window.addEventListener('click', (e) => {
             if (terminalModal.contains(e.target) || isMobile) return;
 
@@ -502,7 +472,6 @@
             }
         });
 
-        // --- Audio Logic ---
         const playBtn = document.getElementById('play-btn');
         const playIcon = document.getElementById('play-icon');
         const pauseIcon = document.getElementById('pause-icon');
@@ -531,7 +500,6 @@
             }
         });
 
-        // --- Clean Spring Cursor & Trail (Desktop Only) ---
         const dot = document.getElementById('cursor-dot');
         const ring = document.getElementById('cursor-ring');
         let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
@@ -579,7 +547,6 @@
             });
         }
 
-        // --- Canvas: Optimized Particles & Code Rain ---
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -641,7 +608,6 @@
             }
         }
 
-        // Уменьшаем количество элементов на мобилках для лагов 0
         const particleCount = isMobile ? 45 : 120;
         const codeCount = isMobile ? 8 : 20;
 
@@ -652,8 +618,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             codeStrings.forEach(c => { c.update(); c.draw(); });
             particles.forEach(p => { p.update(); p.draw(); });
-            
-            // Рендерим линии между точками только на десктопе для экономии ресурсов процессора телефона
+
             if (!isMobile) {
                 for(let i=0; i<particles.length; i++) {
                     for(let j=i; j<particles.length; j++) {
@@ -672,7 +637,6 @@
         }
         animateCanvas();
 
-        // --- Glass Light Tracker & 3D Tilt ---
         document.querySelectorAll('.glass-btn-3d').forEach(btn => {
             btn.addEventListener('mousemove', (e) => {
                 if (isMobile) return;
@@ -689,7 +653,6 @@
             });
         });
 
-        // --- Custom Skills Swarm ---
         const skillsList = [
             'React', 'GLSL', 'Node.js', 'Python', 'Three.js', 'WebGL', 'Physics', 'Figma'
         ];
