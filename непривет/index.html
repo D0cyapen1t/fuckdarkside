@@ -1,0 +1,197 @@
+<!-- language: HTML, file: index.html, target: Web -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Непривет | FUCKDARKSIDEE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&display=swap');
+
+        body { 
+            margin: 0; background: #000; color: #fff; 
+            font-family: 'Space Grotesk', sans-serif; 
+            overflow-x: hidden; 
+            user-select: none;
+        }
+
+        /* Film Grain */
+        .noise {
+            position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Canvas BG */
+        #canvas { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            z-index: 0; pointer-events: none; 
+        }
+
+        /* Glass chat mockups */
+        .chat-box {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+        }
+
+        .bubble-left {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px 16px 16px 4px;
+        }
+
+        .bubble-right {
+            background: rgba(0, 255, 249, 0.08);
+            border: 1px solid rgba(0, 255, 249, 0.2);
+            border-radius: 16px 16px 4px 16px;
+        }
+
+        button, a, *:focus { outline: none !important; box-shadow: none !important; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-8 relative">
+
+    <div class="noise"></div>
+    <canvas id="canvas"></canvas>
+
+    <!-- Top Bar / Back -->
+    <header class="w-full max-w-4xl z-25 flex justify-between items-center py-4 relative">
+        <a href="/" class="font-mono text-xs text-cyan-400 hover:text-white transition-colors flex items-center gap-2">
+            <span>←</span> <span>DARKPROJECTS.ONLINE</span>
+        </a>
+        <span class="font-mono text-xs text-white/40">[ PROTOCOL: NO_HELLO ]</span>
+    </header>
+
+    <!-- Main Content -->
+    <main class="w-full max-w-4xl z-25 my-auto py-6 flex flex-col items-center gap-10 relative">
+        
+        <!-- Title Section -->
+        <div class="flex flex-col items-center text-center gap-3">
+            <h1 class="text-4xl sm:text-5xl font-black tracking-tight uppercase text-pink-500 drop-shadow-[0_0_15px_rgba(255,0,193,0.3)]">
+                НЕПРИВЕТ
+            </h1>
+            <p class="text-white/70 text-sm sm:text-base font-medium">
+                Пожалуйста, не пишите просто «Привет» в чате
+            </p>
+        </div>
+
+        <!-- Row 1: Bad Example -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full items-center">
+            <!-- Chat Mockup -->
+            <div class="chat-box p-5 sm:p-6 flex flex-col gap-4 relative overflow-hidden">
+                <div class="text-xs font-mono text-white/40 uppercase tracking-widest">darkside chat</div>
+                <div class="flex flex-col gap-3 my-2">
+                    <div class="bubble-left p-3.5 max-w-[80%] text-sm text-white/90">
+                        Привет!
+                        <div class="text-[10px] text-white/30 font-mono text-right mt-1">08.03</div>
+                    </div>
+                    <div class="bubble-right p-3.5 max-w-[80%] text-sm text-cyan-300 self-end">
+                        Привет.
+                        <div class="text-[10px] text-white/30 font-mono text-right mt-1">08.42</div>
+                    </div>
+                </div>
+                <div class="text-xs font-mono text-pink-400 animate-pulse mt-1">
+                    Собеседник набирает сообщение...
+                </div>
+            </div>
+
+            <!-- Description with Red Cross -->
+            <div class="flex flex-col gap-4 px-2 sm:px-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-pink-950/60 border border-pink-500/40 flex items-center justify-center text-pink-400 text-xl font-black shadow-[0_0_15px_rgba(255,0,193,0.3)]">
+                        ✕
+                    </div>
+                    <span class="font-mono text-xs tracking-wider text-pink-400 uppercase font-bold">Неверный подход</span>
+                </div>
+                <p class="text-white/70 text-sm sm:text-base leading-relaxed">
+                    Вместо того, чтобы сразу перейти к делу, сначала вы ждёте, пока собеседник ответит на Ваше приветствие, а затем заставляете коллегу ждать, пока Вы сформулируете свой вопрос.
+                </p>
+            </div>
+        </div>
+
+        <!-- Row 2: Good Example -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full items-center">
+            <!-- Description / Call to action -->
+            <div class="flex flex-col gap-4 px-2 sm:px-4 order-2 md:order-1">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-lg font-black shadow-[0_0_15px_rgba(0,255,249,0.3)]">
+                        ✓
+                    </div>
+                    <span class="font-mono text-xs tracking-wider text-cyan-400 uppercase font-bold">Правильный подход</span>
+                </div>
+                <p class="text-white/70 text-sm sm:text-base leading-relaxed">
+                    А затем, Вы вынуждены ждать ответа на важный вопрос, чтобы продолжить работу над своим проектом.<br><br>
+                    <span class="text-white font-semibold">Экономьте своё время и время своего собеседника, напишите вопрос сразу!</span>
+                </p>
+            </div>
+
+            <!-- Chat Mockup -->
+            <div class="chat-box p-5 sm:p-6 flex flex-col gap-4 relative overflow-hidden order-1 md:order-2">
+                <div class="text-xs font-mono text-white/40 uppercase tracking-widest">darkside chat</div>
+                <div class="flex flex-col gap-3 my-2">
+                    <div class="bubble-left p-3.5 max-w-[90%] text-sm text-white/90">
+                        Я работаю над проектом, у меня есть вопрос [текст вопроса]
+                        <div class="text-[10px] text-white/30 font-mono text-right mt-1">09.05</div>
+                    </div>
+                    <div class="bubble-right p-3.5 max-w-[90%] text-sm text-cyan-300 self-end">
+                        Да, это можно решить вот таким способом [текст ответа]
+                        <div class="text-[10px] text-white/30 font-mono text-right mt-1">09.32</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-4xl z-25 text-center py-6 text-xs font-mono text-white/30 relative">
+        FUCKDARKSIDEE // darkprojects.online
+    </footer>
+
+    <script>
+        const isMobile = window.matchMedia("(pointer: coarse)").matches;
+
+        // --- Canvas Background Particles ---
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() { 
+            canvas.width = window.innerWidth; 
+            canvas.height = window.innerHeight; 
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.size = Math.random() * 1.5;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < (isMobile ? 30 : 80); i++) particles.push(new Particle());
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+    </script>
+</body>
+</html>
