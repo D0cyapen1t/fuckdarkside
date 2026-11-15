@@ -42,15 +42,15 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        #canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        #canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.8s ease; }
         
-        /* Video Background (Theme 2) */
+        /* Video Background (Theme 1) */
         #bg-video {
             position: fixed; inset: 0; width: 100%; height: 100%;
             object-fit: cover; z-index: 0; pointer-events: none;
-            opacity: 0; transition: opacity 0.8s ease;
+            opacity: 1; transition: opacity 0.8s ease;
         }
-        #bg-video.active { opacity: 1; }
+        #bg-video.hidden-bg { opacity: 0; }
 
         .cursor-dot {
             width: 5px; height: 5px; background: #fff; border-radius: 50%;
@@ -184,7 +184,7 @@
         }
         #clock-widget.active { opacity: 1; transform: translateY(0); }
 
-        /* Стильная мини-панель управления фоном */
+        /* Мини-панель управления фоном */
         #bg-panel {
             position: fixed; top: 16px; right: 16px; z-index: 100;
             background: rgba(10,10,10,0.75); backdrop-filter: blur(12px);
@@ -284,7 +284,7 @@
 
     <div class="noise"></div>
     <canvas id="canvas"></canvas>
-    <!-- Видео фон для Теми 2 -->
+    <!-- Видео фон теперь идет как Theme 1 по умолчанию -->
     <video id="bg-video" src="bg.mp4" autoplay muted loop playsinline></video>
 
     <div class="cursor-dot" id="cursor-dot"></div>
@@ -305,7 +305,7 @@
             <div class="bar w-1.5 h-[3px] bg-white/40 rounded-t-sm"></div>
         </div>
 
-        <span id="track-name" class="text-[10px] font-mono text-white/40 tracking-wider">TRACK 1</span>
+        <span id="track-name" class="text-[10px] font-mono text-white/40 tracking-wider">TRACK 11</span>
 
         <button id="next-btn" class="text-[10px] font-bold text-white/50 hover:text-[#00fff9] transition-colors px-1">NEXT ⟩</button>
 
@@ -351,10 +351,11 @@
         const isMobile = window.matchMedia("(pointer: coarse)").matches;
 
         const playlist = ['1.mp3', '2.mp3', '3.mp3', '4.mp3', '5.mp3', '6.mp3', '7.mp3', '8.mp3', '9.mp3', '10.mp3'];
-        let currentBg = localStorage.getItem('selected_bg') || '1';
         
-        // Если при старте сохранен 2-й фон, ставим трек 11.mp3, иначе первый из плейлиста
-        let currentTrackIdx = (currentBg === '2') ? -1 : 0; 
+        // По умолчанию теперь Theme 1 это видео (с треком 11.mp3), а Theme 2 — канвас с точками
+        let currentBg = localStorage.getItem('selected_bg') || '1';
+        let currentTrackIdx = (currentBg === '2') ? 0 : -1; 
+
         const music = document.getElementById('bg-music');
         const trackNameEl = document.getElementById('track-name');
         const bgVideo = document.getElementById('bg-video');
@@ -398,7 +399,7 @@
 
         music.addEventListener('ended', () => {
             if (currentTrackIdx === -1) {
-                music.play(); // Если играет 11.mp3, повторяем его или можно зациклить
+                music.play();
             } else {
                 currentTrackIdx = (currentTrackIdx + 1) % playlist.length;
                 loadTrack(currentTrackIdx);
@@ -605,7 +606,7 @@
             });
         }
 
-        // --- Движок канваса для Темы 1 ---
+        // --- Движок канваса для Темы 2 (бывшей Темы 1) ---
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
@@ -651,19 +652,21 @@
         function applyThemeState() {
             const skillNodesList = document.querySelectorAll('.skill-tag');
             if (currentBg === '2') {
-                canvas.style.opacity = '0';
-                bgVideo.classList.add('active');
-                skillNodesList.forEach(el => el.classList.add('hidden-by-bg'));
-            } else {
+                // Theme 2: Canvas (точки + код) активен, скиллы летают
                 canvas.style.opacity = '1';
-                bgVideo.classList.remove('active');
+                bgVideo.classList.add('hidden-bg');
                 skillNodesList.forEach(el => el.classList.remove('hidden-by-bg'));
+            } else {
+                // Theme 1: Видео (bg.mp4) активно, скиллы скрыты
+                canvas.style.opacity = '0';
+                bgVideo.classList.remove('hidden-bg');
+                skillNodesList.forEach(el => el.classList.add('hidden-by-bg'));
             }
         }
         applyThemeState();
 
         function animateCanvas() {
-            if (currentBg === '1') {
+            if (currentBg === '2') {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 codeStrings.forEach(c => {
@@ -724,8 +727,8 @@
                 currentBg = btn.dataset.bg;
                 localStorage.setItem('selected_bg', currentBg);
 
-                // Переключение трека при смене темы на 2 (на 11.mp3) или обратно на 1
-                if (currentBg === '2') {
+                // Если выбрана Theme 1 (видео) — включаем трек 11.mp3 (-1), если Theme 2 — обычный плейлист
+                if (currentBg === '1') {
                     currentTrackIdx = -1;
                     loadTrack(-1);
                 } else {
