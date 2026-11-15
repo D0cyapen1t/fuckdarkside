@@ -175,26 +175,26 @@
         }
         #clock-widget.active { opacity: 1; transform: translateY(0); }
 
-        /* Background Switcher Widget */
+        /* Стильная минималистичная кнопка переключения фонов */
         #bg-switcher {
             position: fixed; top: 16px; right: 16px; z-index: 100;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
-            padding: 6px 10px; display: flex; gap: 6px; opacity: 0;
+            padding: 5px 8px; display: flex; gap: 4px; opacity: 0;
             transform: translateY(-20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @media(min-width: 640px) {
-            #bg-switcher { top: 24px; right: 24px; padding: 8px 12px; border-radius: 14px; gap: 8px; }
+            #bg-switcher { top: 24px; right: 24px; padding: 6px 10px; border-radius: 14px; gap: 6px; }
         }
         #bg-switcher.active { opacity: 1; transform: translateY(0); }
         .bg-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.5); font-family: monospace; font-size: 10px;
+            background: transparent; border: 1px solid transparent;
+            color: rgba(255,255,255,0.4); font-family: monospace; font-size: 10px;
             padding: 4px 8px; border-radius: 8px; transition: all 0.2s;
         }
         @media (pointer: fine) { .bg-btn { cursor: none; } }
-        .bg-btn.active { background: rgba(0,255,249,0.15); border-color: #00fff9; color: #00fff9; box-shadow: 0 0 10px rgba(0,255,249,0.2); }
-        .bg-btn:hover:not(.active) { color: #fff; border-color: rgba(255,255,255,0.3); }
+        .bg-btn.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #00fff9; text-shadow: 0 0 8px rgba(0,255,249,0.5); }
+        .bg-btn:hover:not(.active) { color: #fff; background: rgba(255,255,255,0.05); }
 
         #terminal-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
@@ -247,10 +247,10 @@
         </div>
     </div>
 
-    <!-- Background Switcher Button Widget -->
+    <!-- Кнопка переключения фонов (ФОН 1 / ФОН 2) -->
     <div id="bg-switcher">
-        <button class="bg-btn active" data-bg="1">ФОН 1</button>
-        <button class="bg-btn" data-bg="2">ФОН 2</button>
+        <button class="bg-btn active" data-bg="1">BG 1</button>
+        <button class="bg-btn" data-bg="2">BG 2</button>
     </div>
 
     <div id="terminal-modal">
@@ -579,28 +579,28 @@
             });
         }
 
-        // --- Dual Background Engine ---
+        // --- Двойной движок фонов (BG 1: Нейросеть + Код | BG 2: Неоновый матричный дождь) ---
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let currentBg = localStorage.getItem('selected_bg') || '1';
 
-        // Background 1 Data (Particles + Code Strings)
+        // Фоновые данные для Фон 1
         let particles = [];
         let codeStrings = [];
         const snippets = ['0x00F8', 'ptr->next', 'sys.override()', 'chmod 777', 'alloc(size)', '[kernel_hook]', 'jmp eax', 'FUCKDARKSIDEE', '01001011', 'root@localhost', 'inject.dll'];
 
-        // Background 2 Data (Warp Jump Stars)
-        let stars = [];
-        const starCount = isMobile ? 80 : 250;
+        // Фоновые данные для Фон 2 (Матричный неоновый дождь)
+        let matrixDrops = [];
+        const matrixChars = '01ABCDEFHIJKLMNOPQRSTUVWXYZ#$&@<>\\/';
 
         function initBackgrounds() {
             particles = [];
             codeStrings = [];
-            stars = [];
+            matrixDrops = [];
 
+            // Инициализация Фон 1
             const pCount = isMobile ? 45 : 120;
             const cCount = isMobile ? 8 : 20;
-
             for (let i = 0; i < pCount; i++) {
                 particles.push({
                     x: Math.random() * window.innerWidth,
@@ -610,7 +610,6 @@
                     size: Math.random() * 1.5
                 });
             }
-
             for (let i = 0; i < cCount; i++) {
                 codeStrings.push({
                     x: Math.random() * window.innerWidth,
@@ -622,13 +621,15 @@
                 });
             }
 
-            for (let i = 0; i < starCount; i++) {
-                stars.push({
-                    x: (Math.random() - 0.5) * window.innerWidth * 2,
-                    y: (Math.random() - 0.5) * window.innerHeight * 2,
-                    z: Math.random() * window.innerWidth,
-                    size: Math.random() * 1.5 + 0.5,
-                    color: Math.random() > 0.3 ? '#ffffff' : (Math.random() > 0.5 ? '#00fff9' : '#ff00c1')
+            // Инициализация Фон 2 (Матрица)
+            const fontSize = 14;
+            const columns = Math.floor(window.innerWidth / fontSize);
+            for (let i = 0; i < columns; i++) {
+                matrixDrops.push({
+                    x: i * fontSize,
+                    y: (Math.random() - 1) * window.innerHeight,
+                    speed: Math.random() * 2 + 2,
+                    length: Math.floor(Math.random() * 15 + 10)
                 });
             }
         }
@@ -636,16 +637,16 @@
         function resize() { 
             canvas.width = window.innerWidth; 
             canvas.height = window.innerHeight; 
+            initBackgrounds();
         }
         window.addEventListener('resize', resize);
         resize();
-        initBackgrounds();
 
         function animateCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (currentBg === '1') {
-                // --- BG 1: Particles + Code Rain ---
+                // --- ФОН 1: Точки (нейросеть) + Падающий код ---
                 codeStrings.forEach(c => {
                     c.y += c.vy;
                     if (c.y < -50) {
@@ -686,37 +687,39 @@
                     }
                 }
             } else {
-                // --- BG 2: Warp Jump Stars ---
-                const centerX = canvas.width / 2;
-                const centerY = canvas.height / 2;
-                
-                // Наклон центра при движении курсора мыши / касании
-                const offsetX = isMobile ? 0 : (mouseX - centerX) * 0.15;
-                const offsetY = isMobile ? 0 : (mouseY - centerY) * 0.15;
+                // --- ФОН 2: Неоновый матричный дождь ---
+                ctx.font = '13px monospace';
+                matrixDrops.forEach(drop => {
+                    drop.y += drop.speed;
+                    if (drop.y > canvas.height) {
+                        drop.y = -drop.length * 15;
+                        drop.speed = Math.random() * 2 + 2;
+                    }
 
-                stars.forEach(s => {
-                    s.z -= 2.5; // скорость полета
-                    if (s.z <= 0) s.z = window.innerWidth;
-
-                    const k = 250 / s.z;
-                    const px = s.x * k + centerX + offsetX;
-                    const py = s.y * k + centerY + offsetY;
-
-                    if (px >= 0 && px <= canvas.width && py >= 0 && py <= canvas.height) {
-                        const pSize = Math.max(0.1, (1 - s.z / window.innerWidth) * 2.5 * s.size);
-                        ctx.fillStyle = s.color;
-                        ctx.beginPath();
-                        ctx.arc(px, py, pSize, 0, Math.PI * 2);
-                        ctx.fill();
+                    for (let j = 0; j < drop.length; j++) {
+                        const charY = drop.y - j * 15;
+                        if (charY >= -20 && charY <= canvas.height + 20) {
+                            const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                            if (j === 0) {
+                                ctx.fillStyle = '#ffffff'; // Голова потока — ярко-белая
+                                ctx.shadowBlur = 10; ctx.shadowColor = '#00fff9';
+                            } else {
+                                const alpha = Math.max(0.05, 1 - j / drop.length);
+                                ctx.fillStyle = `rgba(0, 255, 249, ${alpha * 0.5})`;
+                                ctx.shadowBlur = 0;
+                            }
+                            ctx.fillText(char, drop.x, charY);
+                        }
                     }
                 });
+                ctx.shadowBlur = 0; // сброс тени
             }
 
             requestAnimationFrame(animateCanvas);
         }
         animateCanvas();
 
-        // Switcher logic
+        // Логика переключения кнопок фона
         const bgBtns = document.querySelectorAll('.bg-btn');
         bgBtns.forEach(btn => {
             if (btn.dataset.bg === currentBg) {
