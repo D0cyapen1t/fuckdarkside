@@ -43,6 +43,14 @@
         }
 
         #canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        
+        /* Video Background (Theme 2) */
+        #bg-video {
+            position: fixed; inset: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: 0; pointer-events: none;
+            opacity: 0; transition: opacity 0.8s ease;
+        }
+        #bg-video.active { opacity: 1; }
 
         .cursor-dot {
             width: 5px; height: 5px; background: #fff; border-radius: 50%;
@@ -130,11 +138,12 @@
             position: absolute; padding: 0.4rem 0.8rem; border: 1px solid rgba(255,255,255,0.1);
             border-radius: 30px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
             white-space: nowrap; font-size: 0.75rem; font-weight: 500; user-select: none; 
-            transition: filter 0.3s; opacity: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: filter 0.3s, opacity 0.5s; opacity: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         @media (pointer: fine) { .skill-tag { cursor: none; } }
         .skill-tag.visible { opacity: 1; transition: opacity 1s, filter 0.3s; }
         .skill-tag:hover { filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); border-color: rgba(255,255,255,0.5); }
+        .skill-tag.hidden-by-bg { opacity: 0 !important; pointer-events: none !important; }
 
         #audio-dock {
             transform: translateX(-50%) translateY(100px); opacity: 0;
@@ -175,26 +184,28 @@
         }
         #clock-widget.active { opacity: 1; transform: translateY(0); }
 
-        /* Стильная минималистичная кнопка переключения фонов */
-        #bg-switcher {
+        /* Стильная мини-панель управления фоном */
+        #bg-panel {
             position: fixed; top: 16px; right: 16px; z-index: 100;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
-            padding: 5px 8px; display: flex; gap: 4px; opacity: 0;
+            background: rgba(10,10,10,0.75); backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+            padding: 4px; display: flex; align-items: center; gap: 4px; opacity: 0;
             transform: translateY(-20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         @media(min-width: 640px) {
-            #bg-switcher { top: 24px; right: 24px; padding: 6px 10px; border-radius: 14px; gap: 6px; }
+            #bg-panel { top: 24px; right: 24px; padding: 6px; border-radius: 14px; gap: 6px; }
         }
-        #bg-switcher.active { opacity: 1; transform: translateY(0); }
-        .bg-btn {
+        #bg-panel.active { opacity: 1; transform: translateY(0); }
+        .panel-btn {
             background: transparent; border: 1px solid transparent;
             color: rgba(255,255,255,0.4); font-family: monospace; font-size: 10px;
-            padding: 4px 8px; border-radius: 8px; transition: all 0.2s;
+            padding: 5px 10px; border-radius: 8px; transition: all 0.25s ease;
+            letter-spacing: 0.05em;
         }
-        @media (pointer: fine) { .bg-btn { cursor: none; } }
-        .bg-btn.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #00fff9; text-shadow: 0 0 8px rgba(0,255,249,0.5); }
-        .bg-btn:hover:not(.active) { color: #fff; background: rgba(255,255,255,0.05); }
+        @media (pointer: fine) { .panel-btn { cursor: none; } }
+        .panel-btn.active { background: rgba(0,255,249,0.12); border-color: rgba(0,255,249,0.3); color: #00fff9; text-shadow: 0 0 8px rgba(0,255,249,0.4); }
+        .panel-btn:hover:not(.active) { color: #fff; background: rgba(255,255,255,0.05); }
 
         #terminal-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
@@ -247,10 +258,10 @@
         </div>
     </div>
 
-    <!-- Кнопка переключения фонов (ФОН 1 / ФОН 2) -->
-    <div id="bg-switcher">
-        <button class="bg-btn active" data-bg="1">BG 1</button>
-        <button class="bg-btn" data-bg="2">BG 2</button>
+    <!-- Мини-панель управления фоном -->
+    <div id="bg-panel">
+        <button class="panel-btn active" data-bg="1">THEME 1</button>
+        <button class="panel-btn" data-bg="2">THEME 2</button>
     </div>
 
     <div id="terminal-modal">
@@ -273,6 +284,8 @@
 
     <div class="noise"></div>
     <canvas id="canvas"></canvas>
+    <!-- Видео фон для Теми 2 -->
+    <video id="bg-video" src="bg.mp4" autoplay muted loop playsinline></video>
 
     <div class="cursor-dot" id="cursor-dot"></div>
     <div class="cursor-ring" id="cursor-ring"></div>
@@ -338,13 +351,22 @@
         const isMobile = window.matchMedia("(pointer: coarse)").matches;
 
         const playlist = ['1.mp3', '2.mp3', '3.mp3', '4.mp3', '5.mp3', '6.mp3', '7.mp3', '8.mp3', '9.mp3', '10.mp3'];
-        let currentTrackIdx = 0;
+        let currentBg = localStorage.getItem('selected_bg') || '1';
+        
+        // Если при старте сохранен 2-й фон, ставим трек 11.mp3, иначе первый из плейлиста
+        let currentTrackIdx = (currentBg === '2') ? -1 : 0; 
         const music = document.getElementById('bg-music');
         const trackNameEl = document.getElementById('track-name');
+        const bgVideo = document.getElementById('bg-video');
 
         function loadTrack(idx) {
-            music.src = playlist[idx];
-            trackNameEl.innerText = `TRACK ${idx + 1}`;
+            if (idx === -1) {
+                music.src = '11.mp3';
+                trackNameEl.innerText = 'TRACK 11';
+            } else {
+                music.src = playlist[idx];
+                trackNameEl.innerText = `TRACK ${idx + 1}`;
+            }
             music.load();
         }
         loadTrack(currentTrackIdx);
@@ -370,19 +392,27 @@
                 document.querySelectorAll('.skill-tag').forEach(el => el.classList.add('visible'));
                 document.getElementById('audio-dock').classList.add('active');
                 document.getElementById('clock-widget').classList.add('active');
-                document.getElementById('bg-switcher').classList.add('active');
+                document.getElementById('bg-panel').classList.add('active');
             }, 400);
         });
 
         music.addEventListener('ended', () => {
-            currentTrackIdx = (currentTrackIdx + 1) % playlist.length;
-            loadTrack(currentTrackIdx);
-            music.play();
+            if (currentTrackIdx === -1) {
+                music.play(); // Если играет 11.mp3, повторяем его или можно зациклить
+            } else {
+                currentTrackIdx = (currentTrackIdx + 1) % playlist.length;
+                loadTrack(currentTrackIdx);
+                music.play();
+            }
         });
 
         document.getElementById('next-btn').addEventListener('click', (e) => {
             e.stopPropagation();
-            currentTrackIdx = (currentTrackIdx + 1) % playlist.length;
+            if (currentTrackIdx === -1) {
+                currentTrackIdx = 0;
+            } else {
+                currentTrackIdx = (currentTrackIdx + 1) % playlist.length;
+            }
             loadTrack(currentTrackIdx);
             if (window.isPlaying || isPlaying) music.play();
         });
@@ -444,7 +474,6 @@
                     case 'help':
                         resLine.innerHTML = `Available commands:<br>
                         - <span class="text-[#00fff9]">music</span>: toggle play/pause track<br>
-                        - <span class="text-[#00fff9]">matrix</span>: toggle matrix effects<br>
                         - <span class="text-[#00fff9]">whoami</span>: show user profile<br>
                         - <span class="text-[#00fff9]">ping</span>: test connection latency<br>
                         - <span class="text-[#00fff9]">clear</span>: clear terminal screen`;
@@ -452,9 +481,6 @@
                     case 'music':
                         playBtn.click();
                         resLine.innerText = 'Audio playback toggled.';
-                        break;
-                    case 'matrix':
-                        resLine.innerText = 'Matrix frequency modulated successfully.';
                         break;
                     case 'whoami':
                         resLine.innerText = 'FUCKDARKSIDEE [Digital & Web Dev / Motion Alchemist]';
@@ -484,7 +510,7 @@
         }
 
         window.addEventListener('click', (e) => {
-            if (terminalModal.contains(e.target) || isMobile || e.target.closest('#bg-switcher')) return;
+            if (terminalModal.contains(e.target) || isMobile || e.target.closest('#bg-panel')) return;
 
             const cross = document.createElement('div');
             cross.className = 'click-cross'; cross.innerText = '+';
@@ -565,7 +591,7 @@
             }
             animateCursor();
 
-            document.querySelectorAll('a, button, input[type="range"], .glitch, img, #preloader, .bg-btn').forEach(el => {
+            document.querySelectorAll('a, button, input[type="range"], .glitch, img, #preloader, .panel-btn').forEach(el => {
                 el.addEventListener('mouseenter', () => {
                     isHovering = true;
                     ring.style.width = '60px'; ring.style.height = '60px'; 
@@ -579,26 +605,18 @@
             });
         }
 
-        // --- Двойной движок фонов (BG 1: Нейросеть + Код | BG 2: Неоновый матричный дождь) ---
+        // --- Движок канваса для Темы 1 ---
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        let currentBg = localStorage.getItem('selected_bg') || '1';
 
-        // Фоновые данные для Фон 1
         let particles = [];
         let codeStrings = [];
         const snippets = ['0x00F8', 'ptr->next', 'sys.override()', 'chmod 777', 'alloc(size)', '[kernel_hook]', 'jmp eax', 'FUCKDARKSIDEE', '01001011', 'root@localhost', 'inject.dll'];
 
-        // Фоновые данные для Фон 2 (Матричный неоновый дождь)
-        let matrixDrops = [];
-        const matrixChars = '01ABCDEFHIJKLMNOPQRSTUVWXYZ#$&@<>\\/';
-
         function initBackgrounds() {
             particles = [];
             codeStrings = [];
-            matrixDrops = [];
 
-            // Инициализация Фон 1
             const pCount = isMobile ? 45 : 120;
             const cCount = isMobile ? 8 : 20;
             for (let i = 0; i < pCount; i++) {
@@ -620,18 +638,6 @@
                     size: Math.floor(Math.random() * 6 + 9)
                 });
             }
-
-            // Инициализация Фон 2 (Матрица)
-            const fontSize = 14;
-            const columns = Math.floor(window.innerWidth / fontSize);
-            for (let i = 0; i < columns; i++) {
-                matrixDrops.push({
-                    x: i * fontSize,
-                    y: (Math.random() - 1) * window.innerHeight,
-                    speed: Math.random() * 2 + 2,
-                    length: Math.floor(Math.random() * 15 + 10)
-                });
-            }
         }
 
         function resize() { 
@@ -642,11 +648,24 @@
         window.addEventListener('resize', resize);
         resize();
 
-        function animateCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function applyThemeState() {
+            const skillNodesList = document.querySelectorAll('.skill-tag');
+            if (currentBg === '2') {
+                canvas.style.opacity = '0';
+                bgVideo.classList.add('active');
+                skillNodesList.forEach(el => el.classList.add('hidden-by-bg'));
+            } else {
+                canvas.style.opacity = '1';
+                bgVideo.classList.remove('active');
+                skillNodesList.forEach(el => el.classList.remove('hidden-by-bg'));
+            }
+        }
+        applyThemeState();
 
+        function animateCanvas() {
             if (currentBg === '1') {
-                // --- ФОН 1: Точки (нейросеть) + Падающий код ---
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
                 codeStrings.forEach(c => {
                     c.y += c.vy;
                     if (c.y < -50) {
@@ -686,53 +705,38 @@
                         }
                     }
                 }
-            } else {
-                // --- ФОН 2: Неоновый матричный дождь ---
-                ctx.font = '13px monospace';
-                matrixDrops.forEach(drop => {
-                    drop.y += drop.speed;
-                    if (drop.y > canvas.height) {
-                        drop.y = -drop.length * 15;
-                        drop.speed = Math.random() * 2 + 2;
-                    }
-
-                    for (let j = 0; j < drop.length; j++) {
-                        const charY = drop.y - j * 15;
-                        if (charY >= -20 && charY <= canvas.height + 20) {
-                            const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
-                            if (j === 0) {
-                                ctx.fillStyle = '#ffffff'; // Голова потока — ярко-белая
-                                ctx.shadowBlur = 10; ctx.shadowColor = '#00fff9';
-                            } else {
-                                const alpha = Math.max(0.05, 1 - j / drop.length);
-                                ctx.fillStyle = `rgba(0, 255, 249, ${alpha * 0.5})`;
-                                ctx.shadowBlur = 0;
-                            }
-                            ctx.fillText(char, drop.x, charY);
-                        }
-                    }
-                });
-                ctx.shadowBlur = 0; // сброс тени
             }
-
             requestAnimationFrame(animateCanvas);
         }
         animateCanvas();
 
-        // Логика переключения кнопок фона
-        const bgBtns = document.querySelectorAll('.bg-btn');
-        bgBtns.forEach(btn => {
+        const panelBtns = document.querySelectorAll('.panel-btn');
+        panelBtns.forEach(btn => {
             if (btn.dataset.bg === currentBg) {
-                bgBtns.forEach(b => b.classList.remove('active'));
+                panelBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             }
 
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                bgBtns.forEach(b => b.classList.remove('active'));
+                panelBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentBg = btn.dataset.bg;
                 localStorage.setItem('selected_bg', currentBg);
+
+                // Переключение трека при смене темы на 2 (на 11.mp3) или обратно на 1
+                if (currentBg === '2') {
+                    currentTrackIdx = -1;
+                    loadTrack(-1);
+                } else {
+                    currentTrackIdx = 0;
+                    loadTrack(0);
+                }
+                if (window.isPlaying || isPlaying) {
+                    music.play();
+                }
+
+                applyThemeState();
             });
         });
 
