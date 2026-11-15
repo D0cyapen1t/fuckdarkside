@@ -311,7 +311,7 @@
 
     <!-- Fluid Simulation Script (OGL + WebGL) -->
     <script type="module">
-        import { Renderer, Camera, Transform, Geometry, Program, Mesh, Texture, Vec2, Vec3 } from 'https://cdn.jsdelivr.net/npm/ogl@0.0.32/dist/ogl.mjs';
+        import { Renderer, Camera, Transform, Geometry, Program, Mesh, RenderTarget, Vec2, Vec3 } from 'https://cdn.jsdelivr.net/npm/ogl@0.0.32/dist/ogl.mjs';
 
         let isStarted = false;
         const isMobile = window.matchMedia("(pointer: coarse)").matches;
@@ -767,7 +767,7 @@
         let simRes = { width: SIM_RESOLUTION, height: SIM_RESOLUTION * gl.height / gl.width };
         let dyeRes = { width: DYE_RESOLUTION, height: DYE_RESOLUTION * gl.height / gl.width };
 
-        function createFBO(w, h) { return renderer.createRenderTarget({ ...fboOpts, width: w, height: h }); }
+        function createFBO(w, h) { return new RenderTarget(gl, { ...fboOpts, width: w, height: h }); }
         function createDoubleFBO(w, h) { return { read: createFBO(w, h), write: createFBO(w, h), swap() { let temp = this.read; this.read = this.write; this.write = temp; } }; }
 
         const velocity = createDoubleFBO(simRes.width, simRes.height);
