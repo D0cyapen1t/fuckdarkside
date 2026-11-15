@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing | FUCKDARKSIDEE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body { 
+            margin: 0; background: #09090b; color: #f4f4f5; 
+            font-family: 'Inter', sans-serif; overflow-x: hidden; 
+            user-select: none; min-height: 100vh;
+            perspective: 1000px;
+        }
+        @media (pointer: fine) {
+            body { cursor: default; }
+        }
+
+        .noise {
+            position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.02;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        #canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        #bg-video {
+            position: fixed; inset: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: 0; pointer-events: none;
+            opacity: 1; transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1); filter: brightness(0.5);
+        }
+        #bg-video.hidden-bg { opacity: 0; }
+
+        .glass-card {
+            background: rgba(18, 18, 23, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .glass-card:hover {
+            background: rgba(24, 24, 30, 0.85);
+            border-color: rgba(255, 255, 255, 0.22);
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 255, 255, 0.04);
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.02);
+        }
+        .glass-btn:active {
+            transform: scale(0.98);
+        }
+
+        #bg-panel {
+            position: fixed; top: 16px; right: 16px; z-index: 100;
+            background: rgba(18, 18, 23, 0.8); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;
+            padding: 4px; display: flex; align-items: center; gap: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            opacity: 0; transform: translateY(-20px) scale(0.95);
+            animation: panelIntro 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards, panelFloat 6s ease-in-out infinite 1.1s;
+            will-change: transform, opacity;
+        }
+        @media(min-width: 640px) {
+            #bg-panel { top: 20px; right: 20px; }
+        }
+
+        @keyframes panelIntro {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes panelFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); box-shadow: 0 18px 40px rgba(0,0,0,0.65), 0 0 20px rgba(255,255,255,0.04); }
+        }
+
+        .panel-btn {
+            background: transparent; border: none;
+            color: rgba(255,255,255,0.4); font-size: 11px; font-weight: 500;
+            padding: 6px 12px; border-radius: 8px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer; position: relative;
+        }
+        .panel-btn.active { 
+            background: rgba(255, 255, 255, 0.14); 
+            color: #fff; 
+            box-shadow: 0 0 20px rgba(255,255,255,0.08);
+            transform: scale(1.02);
+        }
+        .panel-btn:hover:not(.active) { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.06); }
+
+        button, a, *:focus { outline: none !important; box-shadow: none !important; }
+
+        .reveal { opacity: 0; transform: translateY(25px); animation: popUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .d-1 { animation-delay: 0.1s; }
+        .d-2 { animation-delay: 0.2s; }
+        .d-3 { animation-delay: 0.3s; }
+
+        @keyframes popUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between py-8 sm:py-12 px-4 sm:px-6 relative z-10">
+
+    <div class="noise"></div>
+    <canvas id="canvas"></canvas>
+    <video id="bg-video" src="bg.mp4" autoplay muted loop playsinline></video>
+
+    <div id="bg-panel">
+        <button class="panel-btn active" data-bg="1">THEME 1</button>
+        <button class="panel-btn" data-bg="2">THEME 2</button>
+    </div>
+
+    <header class="max-w-4xl w-full mx-auto flex items-center justify-between mb-8 sm:mb-12 reveal d-1">
+        <a href="index.html" class="glass-btn px-3.5 py-2 rounded-xl text-xs font-medium text-white/70 hover:text-white transition-colors flex items-center gap-2">
+            <span>←</span> На главную
+        </a>
+        <span class="text-xs font-mono text-white/30 tracking-widest">PRICING</span>
+    </header>
+
+    <main class="max-w-4xl w-full mx-auto flex-1 flex flex-col justify-center my-auto">
+        
+        <div class="text-center mb-8 sm:mb-12 reveal d-2">
+            <h1 class="text-2xl sm:text-4xl font-bold tracking-tight text-white mb-2 sm:mb-3">Услуги и стоимость</h1>
+            <p class="text-xs sm:text-sm text-white/40 max-w-md mx-auto"></p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 reveal d-3">
+            
+            <div class="glass-card rounded-2xl p-5 sm:p-8 flex flex-col justify-between" id="card-1">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-mono text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-md border border-cyan-500/20">WEB</span>
+                        <span class="text-xs text-white/40 font-mono">от 3-5 дней</span>
+                    </div>
+                    <h2 class="text-lg sm:text-xl font-semibold text-white mb-2">Разработка сайтов</h2>
+                    <p class="text-xs text-white/50 mb-5 sm:mb-6 leading-relaxed"></p>
+                    
+                    <ul class="text-xs text-white/70 space-y-2.5 sm:space-y-3 mb-6 sm:mb-8">
+                        <li class="flex items-center gap-2.5"><span class="text-cyan-400">✓</span> Кастомный дизайн</li>
+                        <li class="flex items-center gap-2.5"><span class="text-cyan-400">✓</span> Адаптивность под любые экраны</li>
+                        <li class="flex items-center gap-2.5"><span class="text-cyan-400">✓</span> Подключение API и форм обратной связи</li>
+                        <li class="flex items-center gap-2.5"><span class="text-cyan-400">✓</span> Базовая оптимизация производительности</li>
+						<li class="flex items-center gap-2.5"><span class="text-cyan-400">✓</span> Админ-Панели и системы уведомлений</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="flex items-baseline justify-between mb-4 pt-4 border-t border-white/10">
+                        <span class="text-xs text-white/40">Стоимость</span>
+                        <span class="text-base sm:text-lg font-bold text-white tracking-tight">от 1500 ₽</span>
+                    </div>
+                    <a href="https://t.me/fuckdarksidee" target="_blank" rel="noopener" class="glass-btn w-full py-3 sm:py-3.5 rounded-xl text-xs font-medium text-white flex items-center justify-center gap-2 group">
+                        Заказать сайт <span class="group-hover:translate-x-1 transition-transform">→</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 sm:p-8 flex flex-col justify-between" id="card-2">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-mono text-pink-400 bg-pink-500/10 px-2.5 py-1 rounded-md border border-pink-500/20">TG BOTS</span>
+                        <span class="text-xs text-white/40 font-mono">от 2-4 дней</span>
+                    </div>
+                    <h2 class="text-lg sm:text-xl font-semibold text-white mb-2">Разработка ботов</h2>
+                    <p class="text-xs text-white/50 mb-5 sm:mb-6 leading-relaxed">Создание телеграм-ботов любой сложности</p>
+                    
+                    <ul class="text-xs text-white/70 space-y-2.5 sm:space-y-3 mb-6 sm:mb-8">
+                        <li class="flex items-center gap-2.5"><span class="text-pink-400">✓</span> Интеграция платежных шлюзов</li>
+                        <li class="flex items-center gap-2.5"><span class="text-pink-400">✓</span> Подключение баз данных</li>
+                        <li class="flex items-center gap-2.5"><span class="text-pink-400">✓</span> Админ-панели и системы уведомлений</li>
+                        <li class="flex items-center gap-2.5"><span class="text-pink-400">✓</span> Настройка хостинга и поддержка</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="flex items-baseline justify-between mb-4 pt-4 border-t border-white/10">
+                        <span class="text-xs text-white/40">Стоимость</span>
+                        <span class="text-base sm:text-lg font-bold text-white tracking-tight">от 1000 ₽</span>
+                    </div>
+                    <a href="https://t.me/fuckdarksidee" target="_blank" rel="noopener" class="glass-btn w-full py-3 sm:py-3.5 rounded-xl text-xs font-medium text-white flex items-center justify-center gap-2 group">
+                        Заказать бота <span class="group-hover:translate-x-1 transition-transform">→</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="max-w-4xl w-full mx-auto mt-12 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 reveal" style="animation-delay: 0.4s;">
+        <p class="text-[11px] sm:text-xs text-white/35">© 2026 DarkProject. All rights reserved.</p>
+        <div class="flex items-center gap-6">
+            <a href="https://t.me/fuckdarksidee" target="_blank" rel="noopener" class="text-[11px] sm:text-xs text-white/40 hover:text-white transition-colors">Telegram</a>
+            <a href="index.html" class="text-[11px] sm:text-xs text-white/40 hover:text-white transition-colors">Главная</a>
+        </div>
+    </footer>
+
+    <script>
+        const isMobile = window.matchMedia("(pointer: coarse)").matches;
+        let currentBg = localStorage.getItem('selected_bg') || '1';
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const bgVideo = document.getElementById('bg-video');
+        let particles = [];
+
+        function initBackgrounds() {
+            particles = [];
+            const pCount = isMobile ? 30 : 70;
+            for (let i = 0; i < pCount; i++) {
+                particles.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    vx: (Math.random() - 0.5) * 0.2,
+                    vy: (Math.random() - 0.5) * 0.2,
+                    size: Math.random() * 1.2
+                });
+            }
+        }
+
+        function resize() { 
+            canvas.width = window.innerWidth; 
+            canvas.height = window.innerHeight; 
+            initBackgrounds();
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function applyThemeState() {
+            if (currentBg === '2') {
+                canvas.style.opacity = '1';
+                bgVideo.classList.add('hidden-bg');
+            } else {
+                canvas.style.opacity = '0';
+                bgVideo.classList.remove('hidden-bg');
+            }
+        }
+        applyThemeState();
+
+        function animateCanvas() {
+            if (currentBg === '2') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.vx; p.y += p.vy;
+                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                    
+                    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+                });
+            }
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        const panelBtns = document.querySelectorAll('.panel-btn');
+        panelBtns.forEach(btn => {
+            if (btn.dataset.bg === currentBg) {
+                panelBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                panelBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentBg = btn.dataset.bg;
+                localStorage.setItem('selected_bg', currentBg);
+                applyThemeState();
+            });
+        });
+
+        if (!isMobile) {
+            document.querySelectorAll('.glass-card').forEach(card => {
+                let bounds = card.getBoundingClientRect();
+                
+                card.addEventListener('mouseenter', () => {
+                    bounds = card.getBoundingClientRect();
+                    card.style.transition = 'transform 0.1s ease-out, background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease';
+                });
+
+                card.addEventListener('mousemove', (e) => {
+                    const x = e.clientX - bounds.left - bounds.width / 2;
+                    const y = e.clientY - bounds.top - bounds.height / 2;
+                    const rx = (-y / 25);
+                    const ry = (x / 25);
+                    card.style.transform = `translateY(-6px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.01, 1.01, 1.01)`;
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease';
+                    card.style.transform = 'translateY(0px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+                });
+            });
+        }
+    </script>
+</body>
+</html>
