@@ -173,6 +173,23 @@
         }
         #clock-widget.active { opacity: 1; transform: translateY(0); }
 
+        /* Кнопка прайса (добавлена в левый верхний угол, под часы) */
+        #pricing-btn {
+            position: fixed; top: 82px; left: 16px; z-index: 100;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            padding: 8px 12px; font-family: monospace; font-size: 10px;
+            display: flex; align-items: center; gap: 6px; opacity: 0;
+            transform: translateY(-20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            color: #fff; text-decoration: none;
+        }
+        @media(min-width: 640px) {
+            #pricing-btn { top: 96px; left: 24px; padding: 10px 16px; font-size: 11px; border-radius: 14px; }
+        }
+        #pricing-btn.active { opacity: 1; transform: translateY(0); }
+        #pricing-btn:hover { border-color: rgba(0,255,249,0.4); color: #00fff9; background: rgba(0,255,249,0.1); }
+        @media (pointer: fine) { #pricing-btn { cursor: none; } }
+
         /* Мини-панель управления фоном */
         #bg-panel {
             position: fixed; top: 16px; right: 16px; z-index: 100;
@@ -247,7 +264,11 @@
         </div>
     </div>
 
-    <!-- Мини-панель управления фоном -->
+    <a href="work/index.html" id="pricing-btn">
+        <span class="text-cyan-400 font-bold">$$</span>
+        <span class="tracking-wider">PRICING</span>
+    </a>
+
     <div id="bg-panel">
         <button class="panel-btn active" data-bg="1">THEME 1</button>
         <button class="panel-btn" data-bg="2">THEME 2</button>
@@ -377,6 +398,7 @@
                 document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
                 document.getElementById('audio-dock').classList.add('active');
                 document.getElementById('clock-widget').classList.add('active');
+                document.getElementById('pricing-btn').classList.add('active');
                 document.getElementById('bg-panel').classList.add('active');
             }, 400);
         });
@@ -495,7 +517,7 @@
         }
 
         window.addEventListener('click', (e) => {
-            if (terminalModal.contains(e.target) || isMobile || e.target.closest('#bg-panel')) return;
+            if (terminalModal.contains(e.target) || isMobile || e.target.closest('#bg-panel') || e.target.closest('#pricing-btn')) return;
 
             const cross = document.createElement('div');
             cross.className = 'click-cross'; cross.innerText = '+';
